@@ -12,6 +12,14 @@ function doGet(e) {
   try {
     if (action === 'bootstrap') data = bootstrap_();
     else if (action === 'getJournal') data = getJournal_(e.parameter.id);
+    else if (action === 'addOption') {
+      rememberOption_(e.parameter.type, e.parameter.value);
+      data = bootstrap_();
+    }
+    else if (action === 'deleteOption') {
+      deleteOption_(e.parameter.type, e.parameter.value);
+      data = bootstrap_();
+    }
     else data = { error: 'unknown action' };
   } catch (err) {
     data = { error: err.message };
