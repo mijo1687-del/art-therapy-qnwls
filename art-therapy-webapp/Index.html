@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>미술치료 일지 및 사진대장</title>
+  <style>
+    :root {
+      --bg: #eef3f5;
+      --paper: #ffffff;
+      --ink: #111827;
+      --muted: #60727d;
+      --line: #d8e1e5;
+      --field: #fbfdfd;
+      --green: #087f6d;
+      --green-soft: #e7f4f1;
+      --red: #d9463e;
+      --red-soft: #fff0ee;
+      --button: #edf3f3;
+      --shadow: 0 1px 2px rgba(16, 24, 40, .04);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Malgun Gothic", system-ui, sans-serif;
+    }
+    button, input, textarea, select { font: inherit; }
+    button, .file-btn {
+      min-height: 48px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--button);
+      color: var(--ink);
+      font-weight: 800;
+      padding: 10px 12px;
+      cursor: pointer;
+      text-align: center;
+    }
+    button.primary { background: var(--green); border-color: var(--green); color: #fff; }
+    button.danger { background: var(--red-soft); border-color: #f0bbb7; color: var(--red); }
+    button.slim { min-height: 40px; padding: 7px 10px; }
+    .shell {
+      width: min(100%, 480px);
+      min-height: 100vh;
+      margin: 0 auto;
+      background: var(--bg);
+      padding-bottom: 78px;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #fff;
+      border-top: 8px solid #14212b;
+      border-bottom: 1px solid #dce4e8;
+      padding: 16px 18px 14px;
+    }
+    header span {
+      display: block;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .view { display: none; padding: 10px; }
+    .view.active { display: block; }
+    .card {
+      position: relative;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 8px;
+    }
+    .card.accent::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 5px;
+      border-radius: 0 5px 5px 0;
+      background: var(--green);
+    }
+    .card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    h2 { margin: 0 0 12px; font-size: 17px; }
+    .card-title h2 { margin: 0; }
+    label {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 12px;
+      color: #455963;
+      font-size: 13px;
+      font-weight: 900;
+    }
+    input, textarea, select {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid #cfd9de;
+      border-radius: 7px;
+      background: var(--field);
+      padding: 12px 13px;
+      color: var(--ink);
+    }
+    textarea { resize: vertical; line-height: 1.55; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .three { display: grid; grid-template-columns: 1fr 76px 76px; gap: 8px; }
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .combo {
+      position: relative;
+      min-width: 0;
+    }
+    .combo-menu {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      z-index: 30;
+      display: none;
+      max-height: 220px;
+      overflow: auto;
+      border: 1px solid #cfd9de;
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: 0 12px 30px rgba(16, 24, 40, .16);
+    }
+    .combo.open .combo-menu { display: block; }
+    .combo-item {
+      display: grid;
+      grid-template-columns: 1fr 38px;
+      align-items: center;
+      min-height: 42px;
+      border-bottom: 1px solid #edf1f3;
+    }
+    .combo-item:last-child { border-bottom: 0; }
+    .combo-pick {
+      width: 100%;
+      min-height: 42px;
+      border: 0;
+      border-radius: 0;
+      background: #fff;
+      text-align: left;
+      font-weight: 700;
+      padding: 8px 12px;
+    }
+    .combo-remove {
+      min-height: 38px;
+      border: 0;
+      border-left: 1px solid #edf1f3;
+      border-radius: 0;
+      background: #fff;
+      color: var(--red);
+      font-size: 18px;
+      padding: 0;
+    }
+    .combo-empty {
+      padding: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .attendee-row {
+      display: grid;
+      grid-template-columns: 112px 1fr 64px;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .media-display {
+      min-height: 48px;
+      border: 1px solid #cfd9de;
+      border-radius: 7px;
+      background: var(--field);
+      padding: 12px 13px;
+      color: var(--ink);
+      line-height: 1.4;
+    }
+    .media-picker {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .media-picker.dialog-picker { margin-top: 0; }
+    .media-option {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfdfd;
+      padding: 8px 10px;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .media-option input {
+      min-height: auto;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+    }
+    .media-empty {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 4px 0;
+    }
+    .media-settings-list {
+      display: grid;
+      gap: 7px;
+      max-height: 220px;
+      overflow: auto;
+      margin-top: 12px;
+    }
+    .media-settings-item {
+      display: grid;
+      grid-template-columns: 1fr 42px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #fbfdfd;
+      overflow: hidden;
+    }
+    .media-settings-item span {
+      padding: 10px 12px;
+      font-weight: 800;
+    }
+    .media-settings-item button {
+      min-height: 42px;
+      border: 0;
+      border-left: 1px solid var(--line);
+      border-radius: 0;
+      background: var(--red-soft);
+      color: var(--red);
+      font-size: 18px;
+      padding: 0;
+    }
+    .session-row {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #fbfdfd;
+    }
+    .session-row-head {
+      display: grid;
+      grid-template-columns: 1fr 64px;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .session-row textarea { min-height: 110px; background: #fff; }
+    .camera-box { display: grid; gap: 10px; margin-top: 10px; }
+    video { width: 100%; border-radius: 8px; background: #111; }
+    .file-btn input { display: none; }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .photo-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .photo-card img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      background: #e5ecef;
+    }
+    .photo-card footer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 6px;
+      padding: 7px;
+    }
+    .photo-card span {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .journal-list { display: grid; gap: 8px; }
+    .journal-item {
+      width: 100%;
+      text-align: left;
+      background: #fff;
+      min-height: 74px;
+    }
+    .journal-item strong {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .journal-item span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .hint { margin: 8px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    nav {
+      position: fixed;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      z-index: 20;
+      width: min(100%, 480px);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: #fff;
+      border-top: 1px solid #d8e1e5;
+      box-shadow: 0 -8px 22px rgba(16, 24, 40, .08);
+    }
+    nav button {
+      border: 0;
+      border-radius: 0;
+      background: #fff;
+      min-height: 66px;
+      display: grid;
+      place-items: center;
+      gap: 2px;
+      padding: 7px 3px;
+      color: #536873;
+      font-size: 11px;
+    }
+    nav b { font-size: 22px; line-height: 1; }
+    nav button.active { color: var(--green); }
+    dialog {
+      border: 0;
+      border-radius: 10px;
+      padding: 20px;
+      width: min(92vw, 380px);
+      box-shadow: 0 26px 70px rgba(0, 0, 0, .25);
+    }
+    dialog label { display: block; margin: 10px 0; font-weight: 700; }
+    .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 78px;
+      transform: translateX(-50%);
+      z-index: 50;
+      width: min(92vw, 430px);
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #17202a;
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(0,0,0,.2);
+    }
+    .hidden { display: none !important; }
+    @media (min-width: 900px) {
+      body { background: #dce6e9; }
+      .shell { box-shadow: 0 0 0 1px rgba(16,24,40,.08), 0 20px 60px rgba(16,24,40,.12); }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <span>미술치료 기록 관리</span>
+      <h1>미술치료 일지 및 사진대장</h1>
+    </header>
+
+    <section id="view-basic" class="view active">
+      <form id="journalForm">
+        <input id="id" type="hidden">
+        <section class="card accent">
+          <div class="card-title"><h2>일지 관리</h2></div>
+          <label>저장된 일지
+            <select id="journalSelect"></select>
+          </label>
+          <div class="two">
+            <button type="button" onclick="loadSelectedJournal()">불러오기</button>
+            <button type="button" class="primary" onclick="newJournal()">새 일지</button>
+            <button type="button" class="danger" onclick="openDeleteDialog()">삭제</button>
+            <button type="button" onclick="saveJournal()">저장</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <label>제목<input id="title" data-option-type="title"></label>
+          <label>일시<input id="journalDate" type="text"></label>
+          <label>장소<input id="place" data-option-type="place"></label>
+          <div class="field-row">
+            <label>프로그램명<input id="programName" data-option-type="programName"></label>
+            <label>미술치료사<input id="therapist" data-option-type="therapist"></label>
+          </div>
+          <label>매체
+            <input id="media" type="hidden">
+            <div id="mediaDisplay" class="media-display">선택된 매체가 없습니다.</div>
+            <div class="two">
+              <button type="button" onclick="openMediaSelectDialog()">매체선택</button>
+              <button type="button" onclick="openMediaSettingsDialog()">설정</button>
+            </div>
+          </label>
+        </section>
+
+        <section class="card">
+          <div class="card-title">
+            <h2>참석자</h2>
+            <button type="button" class="slim" onclick="addAttendeeRow()">추가</button>
+          </div>
+          <div id="attendees"></div>
+        </section>
+      </form>
+    </section>
+
+    <section id="view-session" class="view">
+      <section class="card">
+        <div class="card-title">
+          <h2>회기내용</h2>
+          <button type="button" class="slim" onclick="addSessionRow()">추가</button>
+        </div>
+        <div id="sessions"></div>
+        <p class="hint">성명과 내용을 행별로 입력하면 PDF 출력 시 사람별 구분선이 들어갑니다.</p>
+      </section>
+    </section>
+
+    <section id="view-photo" class="view">
+      <section class="card">
+        <div class="card-title"><h2>사진 입력</h2></div>
+        <label>사진대장 날짜<input id="photoDate" type="date"></label>
+        <div class="two">
+          <button type="button" onclick="startCamera()">사진찍기</button>
+          <label class="file-btn">사진 불러오기<input id="photoInput" type="file" accept="image/*" multiple onchange="loadPhotoFiles(this.files)"></label>
+        </div>
+        <div id="cameraBox" class="camera-box hidden">
+          <video id="camera" autoplay playsinline></video>
+          <div class="two">
+            <button type="button" class="primary" onclick="capturePhoto()">촬영</button>
+            <button type="button" onclick="stopCamera()">닫기</button>
+          </div>
+        </div>
+        <div id="photoGrid" class="photo-grid"></div>
+      </section>
+    </section>
+
+    <section id="view-list" class="view">
+      <section class="card">
+        <div class="card-title">
+          <h2>조회</h2>
+          <button type="button" class="slim" onclick="newJournal()">새 일지</button>
+        </div>
+        <div id="journalList" class="journal-list"></div>
+      </section>
+    </section>
+
+    <section id="view-output" class="view">
+      <section class="card accent">
+        <h2>출력 및 설정</h2>
+        <div class="output-grid">
+          <button type="button" onclick="openCurrent('diaryPdfUrl')">일지 PDF 보기</button>
+          <button type="button" onclick="openCurrent('ledgerPdfUrl')">사진대장 보기</button>
+          <button type="button" onclick="openPhotoFolder()">원본사진 보기</button>
+          <button type="button" class="primary" onclick="openSubmissionDialog()">제출용 출력</button>
+        </div>
+      </section>
+      <section class="card">
+        <h2>설정 안내</h2>
+        <p class="hint">매체는 입력 화면의 설정 버튼에서 추가/삭제합니다. 제목, 장소, 프로그램명, 치료사, 참석자 성명은 저장 시 자동으로 목록에 추가됩니다.</p>
+      </section>
+    </section>
+
+    <nav>
+      <button type="button" class="active" data-view="basic" onclick="showView('basic')"><b>＋</b><span>입력</span></button>
+      <button type="button" data-view="session" onclick="showView('session')"><b>≡</b><span>내용</span></button>
+      <button type="button" data-view="photo" onclick="showView('photo')"><b>▧</b><span>사진</span></button>
+      <button type="button" data-view="list" onclick="showView('list')"><b>⌕</b><span>조회</span></button>
+      <button type="button" data-view="output" onclick="showView('output')"><b>⚙</b><span>출력</span></button>
+    </nav>
+  </main>
+
+  <datalist id="titleList"></datalist>
+  <datalist id="placeList"></datalist>
+  <datalist id="programNameList"></datalist>
+  <datalist id="therapistList"></datalist>
+  <datalist id="mediaList"></datalist>
+  <datalist id="attendeeNameList"></datalist>
+
+  <dialog id="submissionDialog">
+    <h2>제출용 출력</h2>
+    <label><input type="checkbox" id="includeDiary" checked> 일지 포함</label>
+    <label><input type="checkbox" id="includeLedger" checked> 사진대장 포함</label>
+    <div class="dialog-actions">
+      <button type="button" onclick="closeDialog('submissionDialog')">취소</button>
+      <button type="button" class="primary" onclick="createSubmission()">생성</button>
+    </div>
+  </dialog>
+
+  <dialog id="mediaSelectDialog">
+    <h2>매체선택</h2>
+    <div id="mediaPicker" class="media-picker dialog-picker"></div>
+    <div class="dialog-actions">
+      <button type="button" onclick="clearMediaSelection()">선택 해제</button>
+      <button type="button" class="primary" onclick="closeDialog('mediaSelectDialog')">완료</button>
+    </div>
+  </dialog>
+
+  <dialog id="mediaSettingsDialog">
+    <h2>매체 설정</h2>
+    <label>재료 추가
+      <div class="two">
+        <input id="settingsMedia" data-option-type="media" placeholder="예: 물감">
+        <button type="button" onclick="settingsAddMedia()">추가</button>
+      </div>
+    </label>
+    <div id="mediaSettingsList" class="media-settings-list"></div>
+    <div class="dialog-actions">
+      <button type="button" class="primary" onclick="closeDialog('mediaSettingsDialog')">닫기</button>
+    </div>
+  </dialog>
+
+  <dialog id="deleteDialog">
+    <h2>삭제</h2>
+    <label><input type="checkbox" id="deleteData"> 일지 데이터 삭제</label>
+    <label><input type="checkbox" id="deleteDiaryPdf"> 일지 PDF 삭제</label>
+    <label><input type="checkbox" id="deleteLedgerPdf"> 사진대장 PDF 삭제</label>
+    <label><input type="checkbox" id="deleteSubmissionPdf"> 제출용 PDF 삭제</label>
+    <label><input type="checkbox" id="deleteOriginalPhotos"> 원본사진 삭제</label>
+    <p class="hint">사진대장 PDF를 삭제해도 원본사진은 삭제되지 않습니다.</p>
+    <div class="dialog-actions">
+      <button type="button" onclick="closeDialog('deleteDialog')">취소</button>
+      <button type="button" class="danger" onclick="deleteSelectedParts()">삭제</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const state = {
+      options: {},
+      journals: [],
+      current: null,
+      photos: [],
+      folders: {},
+      cameraStream: null
+    };
+
+    const mock = {
+      getBootstrapData() {
+        const saved = JSON.parse(localStorage.getItem('artTherapyMock') || '{}');
+        return Object.assign({
+          options: {
+            title: ['미술치료 일지'],
+            place: ['경산시 대동요양원'],
+            programName: ['미술치료'],
+            therapist: ['김복진'],
+            media: ['물피리퍼, 색연필, 칼라매직, 도트물감'],
+            attendeeName: ['신희성', '신정아', '박태동']
+          },
+          journals: [],
+          rootFolderUrl: '',
+          photoFolderUrl: '',
+          pdfFolderUrl: ''
+        }, saved);
+      },
+      saveBootstrap(data) { localStorage.setItem('artTherapyMock', JSON.stringify(data)); },
+      getJournal(id) { return this.getBootstrapData().journals.find(row => row.id === id); },
+      saveJournal(payload) {
+        const data = this.getBootstrapData();
+        const now = new Date().toISOString();
+        const row = Object.assign({}, payload, {
+          id: payload.id || `local-${Date.now()}`,
+          attendees: payload.attendees,
+          sessionRows: payload.sessionRows,
+          photos: payload.photos,
+          diaryPdfUrl: '#',
+          ledgerPdfUrl: '#',
+          submissionPdfUrl: '#',
+          updatedAt: now
+        });
+        data.journals = data.journals.filter(item => item.id !== row.id).concat(row);
+        ['title', 'place', 'programName', 'therapist'].forEach(key => rememberLocal(data.options, key, row[key]));
+        splitMedia(row.media).forEach(item => rememberLocal(data.options, 'media', item));
+        row.attendees.forEach(item => rememberLocal(data.options, 'attendeeName', item.name));
+        row.sessionRows.forEach(item => rememberLocal(data.options, 'attendeeName', item.name));
+        this.saveBootstrap(data);
+        return row;
+      },
+      addOption(type, value) {
+        const data = this.getBootstrapData();
+        rememberLocal(data.options, type, value);
+        this.saveBootstrap(data);
+        return data.options;
+      },
+      deleteOption(type, value) {
+        const data = this.getBootstrapData();
+        data.options[type] = (data.options[type] || []).filter(item => item !== value);
+        this.saveBootstrap(data);
+        return data.options;
+      },
+      createSubmissionPdf() { return { url: '#', journals: this.getBootstrapData().journals, journal: state.current }; },
+      deleteJournalParts(id) {
+        const data = this.getBootstrapData();
+        data.journals = data.journals.filter(row => row.id !== id);
+        this.saveBootstrap(data);
+        return data.journals;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      callServer('getBootstrapData', [], init);
+    });
+
+    function init(data) {
+      state.options = data.options || {};
+      state.journals = data.journals || [];
+      state.folders = {
+        root: data.rootFolderUrl,
+        photo: data.photoFolderUrl,
+        pdf: data.pdfFolderUrl
+      };
+      fillLists();
+      renderJournalSelect();
+      renderJournalList();
+      newJournal(false);
+    }
+
+    function callServer(name, args, onSuccess) {
+      if (window.google && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onSuccess)
+          .withFailureHandler(showError)[name](...(args || []));
+      } else {
+        try { onSuccess(mock[name](...(args || []))); }
+        catch (error) { showError(error); }
+      }
+    }
+
+    function fillLists() {
+      const map = {
+        titleList: 'title',
+        placeList: 'place',
+        programNameList: 'programName',
+        therapistList: 'therapist',
+        mediaList: 'media',
+        attendeeNameList: 'attendeeName'
+      };
+      Object.entries(map).forEach(([id, key]) => {
+        document.getElementById(id).innerHTML = (state.options[key] || [])
+          .map(value => `<option value="${attr(value)}"></option>`).join('');
+      });
+      setupAutoComplete();
+      renderMediaPicker();
+      renderMediaSettingsList();
+    }
+
+    function setupAutoComplete(root = document) {
+      root.querySelectorAll('[data-option-type]').forEach(input => enhanceCombo(input, input.dataset.optionType));
+      renderAllComboMenus();
+    }
+
+    function enhanceCombo(input, type) {
+      if (input.dataset.comboReady) return;
+      input.dataset.comboReady = '1';
+      const wrapper = document.createElement('div');
+      wrapper.className = 'combo';
+      input.parentNode.insertBefore(wrapper, input);
+      wrapper.appendChild(input);
+      const menu = document.createElement('div');
+      menu.className = 'combo-menu';
+      wrapper.appendChild(menu);
+
+      input.addEventListener('focus', () => openCombo(input));
+      input.addEventListener('click', () => openCombo(input));
+      input.addEventListener('input', () => renderComboMenu(input));
+      input.addEventListener('blur', () => {
+        saveOptionFromInput(input, true);
+        setTimeout(() => wrapper.classList.remove('open'), 150);
+      });
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          saveOptionFromInput(input, false);
+          wrapper.classList.remove('open');
+        }
+      });
+    }
+
+    function openCombo(input) {
+      renderComboMenu(input);
+      input.closest('.combo').classList.add('open');
+    }
+
+    function renderAllComboMenus() {
+      document.querySelectorAll('[data-option-type]').forEach(renderComboMenu);
+    }
+
+    function renderComboMenu(input) {
+      const type = input.dataset.optionType;
+      const menu = input.closest('.combo').querySelector('.combo-menu');
+      const query = input.value.trim();
+      const values = (state.options[type] || []).filter(value => !query || value.includes(query));
+      if (!values.length) {
+        menu.innerHTML = '<div class="combo-empty">저장된 항목이 없습니다.</div>';
+        return;
+      }
+      menu.innerHTML = values.map(value => `
+        <div class="combo-item">
+          <button type="button" class="combo-pick" data-value="${attr(value)}">${escapeHtml(value)}</button>
+          <button type="button" class="combo-remove" data-value="${attr(value)}" aria-label="삭제">×</button>
+        </div>`).join('');
+      menu.querySelectorAll('.combo-pick').forEach(button => {
+        button.onclick = () => {
+          input.value = button.dataset.value;
+          input.closest('.combo').classList.remove('open');
+          input.focus();
+        };
+      });
+      menu.querySelectorAll('.combo-remove').forEach(button => {
+        button.onclick = event => {
+          event.stopPropagation();
+          deleteOptionValue(type, button.dataset.value, input);
+        };
+      });
+    }
+
+    function saveOptionFromInput(input, silent) {
+      const type = input.dataset.optionType;
+      const value = input.value.trim();
+      if (!type || !value || (state.options[type] || []).includes(value)) return;
+      callServer('addOption', [type, value], options => {
+        state.options = options;
+        fillLists();
+        if (!silent) toast('목록에 저장했습니다.');
+      });
+    }
+
+    function deleteOptionValue(type, valueToDelete, sourceInput) {
+      callServer('deleteOption', [type, valueToDelete], options => {
+        state.options = options;
+        if (sourceInput && sourceInput.value === valueToDelete) sourceInput.value = '';
+        document.querySelectorAll(`[data-option-type="${type}"]`).forEach(input => {
+          if (input.value === valueToDelete) input.value = '';
+        });
+        if (type === 'media') removeMediaFromSelection(valueToDelete);
+        fillLists();
+        toast('목록에서 삭제했습니다.');
+      });
+    }
+
+    function renderMediaPicker() {
+      const picker = document.getElementById('mediaPicker');
+      if (!picker) return;
+      const selected = selectedMediaValues();
+      const media = state.options.media || [];
+      if (!media.length) {
+        picker.innerHTML = '<div class="media-empty">설정에서 매체 재료를 추가하세요.</div>';
+        updateMediaDisplay();
+        return;
+      }
+      picker.innerHTML = media.map(item => `
+        <label class="media-option">
+          <input type="checkbox" value="${attr(item)}" ${selected.includes(item) ? 'checked' : ''} onchange="updateMediaFromChecks()">
+          <span>${escapeHtml(item)}</span>
+        </label>`).join('');
+      updateMediaDisplay();
+    }
+
+    function renderMediaSettingsList() {
+      const list = document.getElementById('mediaSettingsList');
+      if (!list) return;
+      const media = state.options.media || [];
+      if (!media.length) {
+        list.innerHTML = '<div class="media-empty">추가된 매체 재료가 없습니다.</div>';
+        return;
+      }
+      list.innerHTML = media.map(item => `
+        <div class="media-settings-item">
+          <span>${escapeHtml(item)}</span>
+          <button type="button" aria-label="삭제" onclick="deleteMediaItem('${attr(item)}')">×</button>
+        </div>`).join('');
+    }
+
+    function openMediaSelectDialog() {
+      renderMediaPicker();
+      document.getElementById('mediaSelectDialog').showModal();
+    }
+
+    function openMediaSettingsDialog() {
+      renderMediaSettingsList();
+      setValue('settingsMedia', '');
+      document.getElementById('mediaSettingsDialog').showModal();
+    }
+
+    function selectedMediaValues() {
+      return value('media')
+        .split(/\s*\/\s*|,\s*|，\s*/)
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
+
+    function updateMediaFromChecks() {
+      const selected = [...document.querySelectorAll('#mediaPicker input:checked')].map(input => input.value);
+      setValue('media', selected.join(' / '));
+      updateMediaDisplay();
+    }
+
+    function updateMediaDisplay() {
+      const display = document.getElementById('mediaDisplay');
+      if (!display) return;
+      const media = value('media');
+      display.textContent = media || '선택된 매체가 없습니다.';
+    }
+
+    function clearMediaSelection() {
+      setValue('media', '');
+      document.querySelectorAll('#mediaPicker input').forEach(input => input.checked = false);
+      updateMediaDisplay();
+    }
+
+    function removeMediaFromSelection(media) {
+      const next = selectedMediaValues().filter(item => item !== media);
+      setValue('media', next.join(' / '));
+      updateMediaDisplay();
+    }
+
+    function renderJournalSelect() {
+      const select = document.getElementById('journalSelect');
+      select.innerHTML = '<option value="">일지 선택</option>' + state.journals
+        .map(row => `<option value="${attr(row.id)}">${escapeHtml(row.journalDate || '')} ${escapeHtml(row.title || '')}</option>`)
+        .join('');
+    }
+
+    function renderJournalList() {
+      const list = document.getElementById('journalList');
+      if (!state.journals.length) {
+        list.innerHTML = '<button type="button" class="journal-item">저장된 일지가 없습니다.</button>';
+        return;
+      }
+      list.innerHTML = state.journals.map(row => `
+        <button type="button" class="journal-item" onclick="loadJournal('${row.id}')">
+          <strong>${escapeHtml(row.title || '미술치료 일지')}</strong>
+          <span>${escapeHtml(row.journalDate || '')} · ${escapeHtml(row.place || '')}</span>
+        </button>`).join('');
+    }
+
+    function showView(name) {
+      document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+      document.getElementById(`view-${name}`).classList.add('active');
+      document.querySelectorAll('nav button').forEach(button => {
+        button.classList.toggle('active', button.dataset.view === name);
+      });
+    }
+
+    function newJournal(move = true) {
+      state.current = null;
+      state.photos = [];
+      document.getElementById('journalForm').reset();
+      document.getElementById('id').value = '';
+      const today = new Date().toISOString().slice(0, 10);
+      setValue('title', '미술치료 일지');
+      setValue('journalDate', today);
+      setValue('photoDate', today);
+      setValue('media', '');
+      document.getElementById('attendees').innerHTML = '';
+      document.getElementById('sessions').innerHTML = '';
+      addAttendeeRow();
+      addSessionRow();
+      renderPhotos();
+      if (move) showView('basic');
+    }
+
+    function loadSelectedJournal() {
+      const id = document.getElementById('journalSelect').value;
+      if (!id) return toast('불러올 일지를 선택하세요.');
+      loadJournal(id);
+    }
+
+    function loadJournal(id) {
+      callServer('getJournal', [id], row => {
+        state.current = row;
+        state.photos = row.photos || [];
+        ['id', 'title', 'journalDate', 'place', 'programName', 'therapist', 'photoDate', 'media'].forEach(key => setValue(key, row[key]));
+        document.getElementById('attendees').innerHTML = '';
+        (row.attendees || []).forEach(item => addAttendeeRow(item.time, item.name));
+        if (!(row.attendees || []).length) addAttendeeRow();
+        document.getElementById('sessions').innerHTML = '';
+        (row.sessionRows || []).forEach(item => addSessionRow(item.name, item.content));
+        if (!(row.sessionRows || []).length) addSessionRow();
+        renderPhotos();
+        renderMediaPicker();
+        showView('basic');
+      });
+    }
+
+    function addAttendeeRow(time = '', name = '') {
+      const row = document.createElement('div');
+      row.className = 'attendee-row';
+      row.innerHTML = `
+        <input class="attendee-time" placeholder="시간" value="${attr(time)}">
+        <input class="attendee-name" data-option-type="attendeeName" placeholder="성명" value="${attr(name)}">
+        <button type="button" class="danger slim">삭제</button>`;
+      row.querySelector('button').onclick = () => row.remove();
+      const timeInput = row.querySelector('.attendee-time');
+      timeInput.addEventListener('blur', () => timeInput.value = formatTimeValue(timeInput.value));
+      timeInput.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          timeInput.value = formatTimeValue(timeInput.value);
+          row.querySelector('.attendee-name').focus();
+        }
+      });
+      document.getElementById('attendees').appendChild(row);
+      setupAutoComplete(row);
+    }
+
+    function addSessionRow(name = '', content = '') {
+      const row = document.createElement('article');
+      row.className = 'session-row';
+      row.innerHTML = `
+        <div class="session-row-head">
+          <input class="session-name" data-option-type="attendeeName" placeholder="성명" value="${attr(name)}">
+          <button type="button" class="danger slim">삭제</button>
+        </div>
+        <textarea class="session-content" placeholder="내용을 입력하세요">${escapeHtml(content)}</textarea>`;
+      row.querySelector('button').onclick = () => row.remove();
+      document.getElementById('sessions').appendChild(row);
+      setupAutoComplete(row);
+    }
+
+    function collectPayload() {
+      return {
+        id: value('id'),
+        title: value('title'),
+        journalDate: value('journalDate'),
+        place: value('place'),
+        programName: value('programName'),
+        therapist: value('therapist'),
+        photoDate: value('photoDate'),
+        media: value('media'),
+        attendees: [...document.querySelectorAll('.attendee-row')].map(row => ({
+          time: row.querySelector('.attendee-time').value.trim(),
+          name: row.querySelector('.attendee-name').value.trim()
+        })).filter(item => item.time || item.name),
+        sessionRows: [...document.querySelectorAll('.session-row')].map(row => ({
+          name: row.querySelector('.session-name').value.trim(),
+          content: row.querySelector('.session-content').value.trim()
+        })).filter(item => item.name || item.content),
+        photos: state.photos
+      };
+    }
+
+    function saveJournal() {
+      const payload = collectPayload();
+      callServer('saveJournal', [payload], row => {
+        state.current = row;
+        callServer('getBootstrapData', [], data => {
+          state.options = data.options || {};
+          state.journals = data.journals || [];
+          state.folders = { root: data.rootFolderUrl, photo: data.photoFolderUrl, pdf: data.pdfFolderUrl };
+          fillLists();
+          renderJournalSelect();
+          renderJournalList();
+          loadJournal(row.id);
+          toast('저장하고 PDF를 생성했습니다.');
+        });
+      });
+    }
+
+    function addMedia() {
+      const media = value('settingsMedia') || value('media');
+      if (!media) return toast('매체를 입력하세요.');
+      callServer('addOption', ['media', media], options => {
+        state.options = options;
+        fillLists();
+        setValue('settingsMedia', '');
+        toast('매체를 추가했습니다.');
+      });
+    }
+
+    function deleteMedia() {
+      const media = value('settingsMedia') || value('media');
+      if (!media) return toast('삭제할 매체를 입력하세요.');
+      deleteMediaItem(media);
+    }
+
+    function deleteMediaItem(media) {
+      callServer('deleteOption', ['media', media], options => {
+        state.options = options;
+        removeMediaFromSelection(media);
+        setValue('settingsMedia', '');
+        fillLists();
+        toast('매체를 삭제했습니다.');
+      });
+    }
+
+    function settingsAddMedia() {
+      addMedia();
+    }
+
+    function settingsDeleteMedia() {
+      deleteMedia();
+    }
+
+    async function loadPhotoFiles(files) {
+      for (const file of files) {
+        state.photos.push({ name: file.name, dataUrl: await readAsDataUrl(file) });
+      }
+      document.getElementById('photoInput').value = '';
+      renderPhotos();
+    }
+
+    function renderPhotos() {
+      document.getElementById('photoGrid').innerHTML = state.photos.map((photo, index) => `
+        <article class="photo-card">
+          <img src="${photo.dataUrl || photo.previewUrl || ''}" alt="">
+          <footer><span>${escapeHtml(photo.name || `사진 ${index + 1}`)}</span><button type="button" class="danger slim" onclick="removePhoto(${index})">삭제</button></footer>
+        </article>`).join('');
+    }
+
+    function removePhoto(index) {
+      state.photos.splice(index, 1);
+      renderPhotos();
+    }
+
+    async function startCamera() {
+      try {
+        state.cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        document.getElementById('camera').srcObject = state.cameraStream;
+        document.getElementById('cameraBox').classList.remove('hidden');
+      } catch (error) {
+        showError(error);
+      }
+    }
+
+    function capturePhoto() {
+      const video = document.getElementById('camera');
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+      state.photos.push({
+        name: `촬영_${new Date().toISOString().replace(/[:.]/g, '-')}.jpg`,
+        dataUrl: canvas.toDataURL('image/jpeg', .9)
+      });
+      renderPhotos();
+    }
+
+    function stopCamera() {
+      if (state.cameraStream) state.cameraStream.getTracks().forEach(track => track.stop());
+      state.cameraStream = null;
+      document.getElementById('cameraBox').classList.add('hidden');
+    }
+
+    function openCurrent(field) {
+      if (!state.current || !state.current[field]) return toast('먼저 저장된 일지를 선택하세요.');
+      if (state.current[field] === '#') return toast('미리보기 모드입니다.');
+      window.open(state.current[field], '_blank');
+    }
+
+    function openPhotoFolder() {
+      if (state.folders.photo) window.open(state.folders.photo, '_blank');
+      else toast('Apps Script 배포 후 Drive 폴더가 열립니다.');
+    }
+
+    function openSubmissionDialog() {
+      if (!state.current) return toast('먼저 저장된 일지를 선택하세요.');
+      document.getElementById('includeDiary').checked = true;
+      document.getElementById('includeLedger').checked = true;
+      document.getElementById('submissionDialog').showModal();
+    }
+
+    function createSubmission() {
+      closeDialog('submissionDialog');
+      callServer('createSubmissionPdf', [
+        state.current.id,
+        document.getElementById('includeDiary').checked,
+        document.getElementById('includeLedger').checked
+      ], result => {
+        state.journals = result.journals || state.journals;
+        state.current = result.journal || state.current;
+        renderJournalSelect();
+        renderJournalList();
+        toast('제출용 PDF를 생성했습니다.');
+        if (result.url && result.url !== '#') window.open(result.url, '_blank');
+      });
+    }
+
+    function openDeleteDialog() {
+      if (!state.current) return toast('먼저 저장된 일지를 선택하세요.');
+      document.getElementById('deleteDialog').showModal();
+    }
+
+    function deleteSelectedParts() {
+      if (!confirm('선택한 항목을 삭제하시겠습니까?')) return;
+      const options = {
+        data: document.getElementById('deleteData').checked,
+        diaryPdf: document.getElementById('deleteDiaryPdf').checked,
+        ledgerPdf: document.getElementById('deleteLedgerPdf').checked,
+        submissionPdf: document.getElementById('deleteSubmissionPdf').checked,
+        originalPhotos: document.getElementById('deleteOriginalPhotos').checked
+      };
+      closeDialog('deleteDialog');
+      callServer('deleteJournalParts', [state.current.id, options], journals => {
+        state.journals = journals;
+        renderJournalSelect();
+        renderJournalList();
+        newJournal();
+        toast('삭제했습니다.');
+      });
+    }
+
+    function closeDialog(id) { document.getElementById(id).close(); }
+    function value(id) { return document.getElementById(id).value.trim(); }
+    function setValue(id, val) {
+      document.getElementById(id).value = val || '';
+      if (id === 'media') updateMediaDisplay();
+    }
+    function formatTimeValue(raw) {
+      const text = String(raw || '').trim();
+      if (!text) return '';
+      if (/^(AM|PM)\s+/i.test(text)) return text.replace(/^(am|pm)/i, match => match.toUpperCase());
+      let hour;
+      let minute;
+      const colon = text.match(/^(\d{1,2})(?::(\d{1,2}))?$/);
+      const compact = text.match(/^(\d{3,4})$/);
+      if (colon) {
+        hour = Number(colon[1]);
+        minute = Number(colon[2] || 0);
+      } else if (compact) {
+        const digits = compact[1];
+        hour = Number(digits.slice(0, -2));
+        minute = Number(digits.slice(-2));
+      } else {
+        return text;
+      }
+      if (Number.isNaN(hour) || hour > 23 || minute > 59) return text;
+      const period = hour < 12 ? 'AM' : 'PM';
+      let displayHour = hour % 12;
+      if (displayHour === 0) displayHour = 12;
+      return `${period} ${String(displayHour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+    }
+    function readAsDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+    function toast(message) {
+      const box = document.getElementById('toast');
+      box.textContent = message;
+      box.classList.remove('hidden');
+      setTimeout(() => box.classList.add('hidden'), 2600);
+    }
+    function showError(error) { toast(error && error.message ? error.message : String(error)); }
+    function rememberLocal(options, key, value) {
+      value = String(value || '').trim();
+      if (!value) return;
+      options[key] = options[key] || [];
+      if (!options[key].includes(value)) options[key].push(value);
+      options[key].sort();
+    }
+    function splitMedia(value) {
+      return String(value || '').split(/\s*\/\s*|,\s*|，\s*/).map(item => item.trim()).filter(Boolean);
+    }
+    function escapeHtml(value) {
+      return String(value || '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    }
+    function attr(value) { return escapeHtml(value).replace(/`/g, '&#96;'); }
+  </script>
+</body>
+</html>
