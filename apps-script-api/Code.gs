@@ -238,16 +238,20 @@ function rememberOption_(type, value) {
   value = text_(value);
   if (!OPTION_TYPES.includes(type) || !value) return;
   const sheet = getSheet_(OPTION_SHEET);
-  if (!readObjects_(sheet).some(row => row.type === type && row.value === value)) sheet.appendRow([type, value, new Date().toISOString()]);
+  if (!readObjects_(sheet).some(row => row.type === type && text_(row.value) === value)) sheet.appendRow([type, value, new Date().toISOString()]);
 }
 function deleteOption_(type, value) {
+  value = text_(value);
   const sheet = getSheet_(OPTION_SHEET), values = sheet.getDataRange().getValues();
-  for (let i = values.length - 1; i >= 1; i--) if (values[i][0] === type && values[i][1] === value) sheet.deleteRow(i + 1);
+  for (let i = values.length - 1; i >= 1; i--) if (values[i][0] === type && text_(values[i][1]) === value) sheet.deleteRow(i + 1);
 }
 function getOptions_() {
   const options = {};
   OPTION_TYPES.forEach(type => options[type] = []);
-  readObjects_(getSheet_(OPTION_SHEET)).forEach(row => { if (options[row.type] && row.value && !options[row.type].includes(row.value)) options[row.type].push(row.value); });
+  readObjects_(getSheet_(OPTION_SHEET)).forEach(row => {
+    const value = text_(row.value);
+    if (options[row.type] && value && !options[row.type].includes(value)) options[row.type].push(value);
+  });
   Object.keys(options).forEach(key => options[key].sort());
   return options;
 }
