@@ -224,13 +224,13 @@ function ledgerBody_(row) {
       const id = photoIds[page * 4 + i];
       cells.push(`<td>${id ? `<img src="${imageDataUrl_(id)}">` : ''}</td>`);
     }
-    pages.push(`<section class="ledger-page ${page ? 'page-break' : ''}"><table class="ledger-table"><tr>${cells[0]}${cells[1]}</tr><tr>${cells[2]}${cells[3]}</tr></table><footer>미술치료 사진대장 / 활동일자 ${esc_(row.photoDate)} / ${page + 1}-${totalPages}</footer></section>`);
+    pages.push(`<section class="ledger-page"><table class="ledger-table"><tr>${cells[0]}${cells[1]}</tr><tr>${cells[2]}${cells[3]}</tr></table><footer>미술치료 사진대장 / 활동일자 ${esc_(row.photoDate)} / ${page + 1}-${totalPages}</footer></section>`);
   }
   return pages.join('');
 }
 
 function wrapPdfHtml_(body) {
-  return `<!doctype html><html><head><meta charset="utf-8"><style>@page{size:A4;margin:18mm}body{font-family:"Malgun Gothic",Arial,sans-serif;color:#111}h1{text-align:center;font-size:22px;margin:0 0 12px}table{border-collapse:collapse;width:100%}.diary-table th,.diary-table td{border:1px solid #111;padding:6px 8px;font-size:12px;line-height:1.55;vertical-align:top}.diary-table th{width:17%;background:#fff5c6;text-align:center}.session-cell{min-height:130mm}.session-block+.session-block{border-top:1px solid #999;margin-top:8px;padding-top:8px}.session-block strong{display:block;margin-bottom:3px}.page-break{page-break-before:always}.ledger-page{height:261mm;position:relative}.ledger-table{width:100%;height:239mm;border:2px solid #111;table-layout:fixed}.ledger-table td{width:50%;height:119.5mm;border:1px solid #111;text-align:center;vertical-align:middle}.ledger-table img{max-width:96%;max-height:116mm;object-fit:contain}footer{position:absolute;left:0;right:0;bottom:0;text-align:center;font-size:11px}</style></head><body>${body}</body></html>`;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>@page{size:A4;margin:18mm}body{font-family:"Malgun Gothic",Arial,sans-serif;color:#111}h1{text-align:center;font-size:22px;margin:0 0 12px}table{border-collapse:collapse;width:100%}.diary-table th,.diary-table td{border:1px solid #111;padding:6px 8px;font-size:12px;line-height:1.55;vertical-align:top}.diary-table th{width:17%;background:#fff5c6;text-align:center}.session-cell{min-height:130mm}.session-block+.session-block{border-top:1px solid #999;margin-top:8px;padding-top:8px}.session-block strong{display:block;margin-bottom:3px}.page-break{page-break-before:always}.ledger-page{page-break-after:always}.ledger-page:last-child{page-break-after:auto}.ledger-table{width:100%;height:232mm;border:2px solid #111;table-layout:fixed}.ledger-table td{width:50%;height:116mm;border:1px solid #111;text-align:center;vertical-align:middle}.ledger-table img{max-width:96%;max-height:112mm;object-fit:contain}footer{text-align:center;font-size:11px;margin-top:6mm}</style></head><body>${body}</body></html>`;
 }
 
 function savePdf_(html, fileName) {
