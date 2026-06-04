@@ -62,6 +62,7 @@ function listJournals_() {
       id: row.id,
       title: row.title,
       journalDate: row.journalDate,
+      photoDate: row.photoDate,
       place: row.place,
       programName: row.programName,
       updatedAt: row.updatedAt,
